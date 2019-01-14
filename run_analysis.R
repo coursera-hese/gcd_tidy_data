@@ -1,3 +1,7 @@
+#
+# 'Getting and Cleaning Data', Week 4, Peer-Assignment
+#
+
 # Getting the dataset
 if (!file.exists("./data")) { dir.create("./data") }
 # Download the original dataset
@@ -59,11 +63,30 @@ df <- rbind(dfTest, dfTrain)
 
 ## columns to lower-case conversion
 names(df) <- tolower(names(df))
+names(df) <- gsub("\\(\\)", "", names(df))
 
 # function `activity` gets the activity-name for a given activity-Id
 activity <- function(x) { dfActivityLabels[x,2] }
 df$activity <- sapply(df$activity, activity)
 
-# information on the dataset
-print(paste("columns x rows:", ncol(df), "x", nrow(df)))
-print(object.size(df),units="Mb")
+
+#
+# 5) Second dataset with the average of each variable for each activity and each subject (`dfGrouped`).
+#
+# use package `dplyr` for `group_by` and `summarize_all`
+library(dplyr)
+
+dfGrouped <- df %>% 
+  group_by(subject, activity) %>% 
+  summarize_all(mean)
+
+## Alternative solution (without pipelining):
+# groupedData <- group_by(df, subject, activity)
+# dfGrouped <- summarize_all(groupedData, mean)
+
+# information on the datasets
+print(paste("df (columns x rows):", ncol(df), "x", nrow(df)))
+print(object.size(df), units="Mb")
+
+print(paste("dfGrouped (columns x rows):", ncol(dfGrouped), "x", nrow(dfGrouped)))
+print(object.size(dfGrouped), units="Mb")
